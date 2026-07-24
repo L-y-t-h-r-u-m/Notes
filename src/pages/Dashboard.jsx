@@ -1,11 +1,35 @@
-import { useState } from "react";
-import NoteModal from "./NoteModal";
-import NoteCard from "./NoteCard";
-import { createNote, deleteNote as removeNote, updateNote } from "../../api/notes";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import NoteModal from "../components/NoteModal";
+import NoteCard from "../components/NoteCard";
+import { createNote, deleteNote as removeNote, updateNote, getNotes } from "../api/notes";
 
-function Dashboard({ notes = [], refreshNotes }) {
+function Dashboard() {
+  const [notes, setNotes] = useState([]);
   const [open, setOpen] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
+  const navigate = useNavigate();
+
+  const fetchNotes = async () => {
+    try {
+      const data = await getNotes();
+      if (Array.isArray(data)) {
+        setNotes(data);
+      }
+    } catch (error) {
+      if (error.message.includes("401")) {
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
+      console.error("Failed to fetch notes:", error);
+    }
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchNotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // save note
   async function saveNote(note) {
@@ -16,7 +40,7 @@ function Dashboard({ notes = [], refreshNotes }) {
       } else {
         await createNote(note);
       }
-      await refreshNotes();
+      await fetchNotes();
       setOpen(false);
       setEditingNote(null);
     } catch (error) {
@@ -29,7 +53,7 @@ function Dashboard({ notes = [], refreshNotes }) {
   async function handleDelete(id) {
     try {
       await removeNote(id);
-      await refreshNotes();
+      await fetchNotes();
     } catch (error) {
       console.error(error);
       alert("Delete failed");
@@ -43,7 +67,7 @@ function Dashboard({ notes = [], refreshNotes }) {
           setOpen(true);
           setEditingNote(null);
         }}
-        className="mr-auto w-28 h-12 rounded-lg shadow-lg bg-primary text-white font-semibold transition-colors"
+        className="ml-16 md:ml-0 w-28 h-12 rounded-lg shadow-lg bg-primary text-white font-semibold transition-colors"
       >
         New Note
       </button>
@@ -59,7 +83,7 @@ function Dashboard({ notes = [], refreshNotes }) {
         />
       )}
 
-      <div className="flex flex-wrap gap-5 mt-8">
+      <div className="flex flex-wrap gap-5 justify-center md:justify-start mt-8">
         {notes.map((note) => (
           <NoteCard
             key={note._id}

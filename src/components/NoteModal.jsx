@@ -1,17 +1,6 @@
 import {useState, useRef, useEffect} from "react";
 import {Bold, Italic, Image} from "lucide-react";
-
-function getTextColor(bg) {
-  const color = bg.replace("#", "");
-
-  const r = parseInt(color.substring(0, 2), 16);
-  const g = parseInt(color.substring(2, 4), 16);
-  const b = parseInt(color.substring(4, 6), 16);
-
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-
-  return brightness > 150 ? "black" : "white";
-}
+import  getTextColor  from "../utils/color";
 
 function NoteModal({ close, onSave, initialNote }) {
   const [note, setNote] = useState(
@@ -24,6 +13,7 @@ function NoteModal({ close, onSave, initialNote }) {
   );
 
   const contentRef = useRef(null);
+  const textColor = getTextColor(note.bgColor);
 
   useEffect(() => {
   if (contentRef.current) {
@@ -38,7 +28,7 @@ function NoteModal({ close, onSave, initialNote }) {
     const reader = new FileReader();
 
     reader.onload = () => {
-      const imgHtml = `<img src="${reader.result}" class="max-w-full rounded-lg my-2"/>`;
+      const imgHtml = `<img src="${reader.result}" class="w-full h-48 object-cover"/>`;
       const updatedContent = (contentRef.current?.innerHTML || note.content) + imgHtml;
 
       if (contentRef.current) {
@@ -76,14 +66,14 @@ function NoteModal({ close, onSave, initialNote }) {
         style={{
           backgroundColor: note.bgColor,
         }}
-        className="w-[750px] h-[500px] rounded-2xl p-8 shadow-xl"
+        className="w-[750px] h-[90vh] rounded-2xl p-8 shadow-xl flex flex-col"
       >
         <input
           placeholder="Title"
           value={note.title}
           className="w-full text-2xl font-semibold outline-none mb-5 bg-transparent"
           style={{
-            color: getTextColor(note.bgColor),
+            color: textColor,
           }}
           onChange={(e) =>
             setNote({
@@ -97,7 +87,8 @@ function NoteModal({ close, onSave, initialNote }) {
           <button
             type="button"
             onClick={() => applyFormat("bold")}
-            style={{ color: getTextColor(note.bgColor) }}
+            style={{ color: textColor }}
+            className="cursor-pointer"
           >
             <Bold size={20} />
           </button>
@@ -105,14 +96,15 @@ function NoteModal({ close, onSave, initialNote }) {
           <button
             type="button"
             onClick={() => applyFormat("italic")}
-            style={{ color: getTextColor(note.bgColor) }}
+            style={{ color: textColor }}
+            className="cursor-pointer"
           >
             <Italic size={20} />
           </button>
 
           <label
             className="flex items-center gap-2 cursor-pointer"
-            style={{ color: getTextColor(note.bgColor) }}
+            style={{ color: textColor }}
           >
             <Image size={20} />
             <input
@@ -124,11 +116,12 @@ function NoteModal({ close, onSave, initialNote }) {
           </label>
 
           <div className="flex items-center gap-2">
-            <span style={{ color: getTextColor(note.bgColor) }}>Color</span>
+            <span style={{ color: textColor }}>Color</span>
 
             <input
               type="color"
               value={note.bgColor}
+              className="cursor-pointer"
               onChange={(e) =>
                 setNote({
                   ...note,
@@ -144,9 +137,9 @@ function NoteModal({ close, onSave, initialNote }) {
           contentEditable
           suppressContentEditableWarning
           autoFocus={!initialNote}
-          className="note-content border border-gray-400 rounded-lg h-60 p-4 outline-none overflow-y-auto text-left align-top whitespace-pre-wrap"
+          className="note-content border flex-1 border-gray-400 rounded-lg p-4 overflow-y-auto "
           style={{
-            color: getTextColor(note.bgColor),
+            color: textColor,
           }}
           data-placeholder="Write your note..."
           onInput={(e) =>
@@ -169,7 +162,7 @@ function NoteModal({ close, onSave, initialNote }) {
           value={note.category.join(",")}
           className="border border-gray-300/40 mt-4 p-2 rounded w-full bg-transparent placeholder-current"
           style={{
-            color: getTextColor(note.bgColor),
+            color: textColor,
           }}
           onChange={(e) =>
             setNote({
@@ -183,8 +176,8 @@ function NoteModal({ close, onSave, initialNote }) {
           <button
             type="button"
             onClick={() => close?.()}
-            className="px-2 font-medium hover:opacity-70 transition-opacity"
-            style={{ color: getTextColor(note.bgColor) }}
+            className="px-2 font-medium hover:opacity-70 transition-opacity cursor-pointer"
+            style={{ color: textColor }}
           >
             Cancel
           </button>
@@ -192,8 +185,8 @@ function NoteModal({ close, onSave, initialNote }) {
           <button
             type="button"
             onClick={handleSave}
-            className="px-2 font-medium hover:opacity-70 transition-opacity"
-            style={{ color: getTextColor(note.bgColor) }}
+            className="px-2 font-medium hover:opacity-70 transition-opacity cursor-pointer"
+            style={{ color: textColor }}
           >
             Save
           </button>
