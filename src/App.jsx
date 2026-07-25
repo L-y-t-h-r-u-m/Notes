@@ -4,6 +4,7 @@ import Trash from "./pages/Trash";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import{ Routes, Route} from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
     </div>}/>
 
       {/*NOTES APP */}
+    <Route element = {<ProtectedRoute/>}>
       <Route path = "/dashboard/*" element = {
     <div className="flex bg-gray-100 h-screen overflow-hidden">
       <Sidebar/>
@@ -43,6 +45,7 @@ function App() {
       </div>
     </div>
     } />
+    </Route>
     </Routes>
   );
 }

@@ -14,9 +14,10 @@ app.use(
 );
 
 app.use("/api/notes", require("./routes/notes"));
+app.use("/api/auth", require("./routes/auth"));
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/collaborativeNotes")
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
   })
@@ -25,5 +26,5 @@ mongoose
   });
 
 app.listen(5000, () => {
-  console.log("Server running on port 5000");
+  console.log("Server running on port");
 });

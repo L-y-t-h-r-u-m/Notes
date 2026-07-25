@@ -50,7 +50,7 @@ function NoteCard({ note, onDelete, onEdit, actionType = "default", onRestore, o
         actionType=="trash"?
         (
         <>
-        {/* Edit Button */}
+        {/* Restore Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();

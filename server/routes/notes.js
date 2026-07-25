@@ -1,12 +1,13 @@
 const router = require("express").Router();
 const Note = require("../models/Note");
+const auth = require("../middleware/auth");
 
 // 1. create note
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   try {
     const { title, content, image, bgColor, category } = req.body;
     
-    const note = await Note.create({ title, content, image, bgColor, category });
+    const note = await Note.create({ title, content, image, bgColor, category,  user: req.user.id });
     res.status(201).json(note); 
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -14,9 +15,9 @@ router.post("/", async (req, res) => {
 });
 
 // 2. get all active notes
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
-    const notes = await Note.find({ trash: false }).sort({ createdAt: -1 });
+    const notes = await Note.find({ trash: false, user: req.user.id, }).sort({ createdAt: -1 });
     res.json(notes);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -24,9 +25,9 @@ router.get("/", async (req, res) => {
 });
 
 // 3. get trash notes
-router.get("/trash", async (req, res) => {
+router.get("/trash",auth, async (req, res) => {
   try { 
-    const notes = await Note.find({ trash: true }).sort({ updatedAt: -1 });
+    const notes = await Note.find({ trash: true, user: req.user.id }).sort({ updatedAt: -1 });
     res.json(notes);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -34,11 +35,14 @@ router.get("/trash", async (req, res) => {
 });
 
 // 4. Update note
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   try {
-    const note = await Note.findByIdAndUpdate(
-      req.params.id,
-      req.body, 
+    const note = await Note.findOneAndUpdate(
+    {  
+      _id: req.params.id,
+      user: req.user.id, 
+    },
+    req.body,
       { returnDocument: 'after' } 
     );
     if (!note) return res.status(404).json({ message: "Note not found" });
@@ -51,10 +55,13 @@ router.put("/:id", async (req, res) => {
 
 // 5. Move to trash
 
-router.patch("/:id/trash", async (req, res) => {
+router.patch("/:id/trash", auth, async (req, res) => {
   try {
     const note = await Note.findByIdAndUpdate(
-      req.params.id,
+    {
+      _id: req.params.id,
+      user: req.user.id,
+    },
       { trash: true },
       { returnDocument: 'after' }
     );
@@ -68,9 +75,14 @@ router.patch("/:id/trash", async (req, res) => {
 });
 
 // 6. Delete
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   try { 
-    const note = await Note.findByIdAndDelete(req.params.id);
+    const note = await Note.findByIdAndDelete(
+      {  
+        _id: req.params.id,
+        user: req.user.id, 
+      }
+    );
     
     if (!note) return res.status(404).json({ message: "Note not found" });
 

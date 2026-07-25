@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/notes";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function authHeaders() {
   const token = localStorage.getItem("token");
@@ -11,7 +11,7 @@ function authHeaders() {
 
 // create note
 export async function createNote(note) {
-  const res = await fetch(API_URL, {
+  const res = await fetch(`${API_URL}/notes`, {
     method: "POST",
     headers: authHeaders(),
     body: JSON.stringify(note),
@@ -23,7 +23,7 @@ export async function createNote(note) {
 
 // get active notes
 export async function getNotes() {
-  const res = await fetch(API_URL, {
+  const res = await fetch(`${API_URL}/notes`, {
     headers: authHeaders(),
   });
   console.log("Status:", res.status);
@@ -34,7 +34,7 @@ export async function getNotes() {
 
 // soft delete
 export async function deleteNote(id) {
-  const res = await fetch(`${API_URL}/${id}/trash`, {
+  const res = await fetch(`${API_URL}/notes/${id}/trash`, {
     method: "PATCH",
     headers: authHeaders(),
   });
@@ -45,7 +45,7 @@ export async function deleteNote(id) {
 
 // update note
 export async function updateNote(id, updatedData) {
-  const res = await fetch(`${API_URL}/${id}`, {
+  const res = await fetch(`${API_URL}/notes/${id}`, {
     method: "PUT",
     headers: authHeaders(),
     body: JSON.stringify(updatedData),
@@ -57,7 +57,7 @@ export async function updateNote(id, updatedData) {
 
 // trash notes
 export async function getTrashNotes() {
-  const res = await fetch(`${API_URL}/trash`, {
+  const res = await fetch(`${API_URL}/notes/trash`, {
     headers: authHeaders(),
   });
 
@@ -67,7 +67,7 @@ export async function getTrashNotes() {
 
 // restore note
 export async function restoreNote(id) {
-  const res = await fetch(`${API_URL}/${id}`, {
+  const res = await fetch(`${API_URL}/notes/${id}`, {
     method: "PUT",
     headers: authHeaders(),
     body: JSON.stringify({ trash: false }),
@@ -79,7 +79,7 @@ export async function restoreNote(id) {
 
 // permanently delete
 export async function permanentlyDeleteNote(id) {
-  const res = await fetch(`${API_URL}/${id}`, {
+  const res = await fetch(`${API_URL}/notes/${id}`, {
     method: "DELETE",
     headers: authHeaders(),
   });

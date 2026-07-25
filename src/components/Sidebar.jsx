@@ -77,7 +77,7 @@ function Sidebar() {
         <span>Notes App</span>
         <button 
           onClick={handleLogout}
-          className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          className="px-3 py-1.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
         >
           Logout
         </button>

@@ -28,7 +28,7 @@ function NoteModal({ close, onSave, initialNote }) {
     const reader = new FileReader();
 
     reader.onload = () => {
-      const imgHtml = `<img src="${reader.result}" class="w-full h-48 object-cover"/>`;
+      const imgHtml = `<img src="${reader.result}" class="w-full max-h-[200px] object-contain rounded-lg"/>`;
       const updatedContent = (contentRef.current?.innerHTML || note.content) + imgHtml;
 
       if (contentRef.current) {
@@ -137,7 +137,7 @@ function NoteModal({ close, onSave, initialNote }) {
           contentEditable
           suppressContentEditableWarning
           autoFocus={!initialNote}
-          className="note-content border flex-1 border-gray-400 rounded-lg p-4 overflow-y-auto "
+          className="note-content border flex-1 min-h-0 border-gray-400 rounded-lg p-4 overflow-y-auto "
           style={{
             color: textColor,
           }}
