@@ -15,10 +15,10 @@ const NoteSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    image: {
-      type: String,
-      default: "",
-    },
+    images: [{
+      url: String,
+      public_id: String,
+    }],
     bgColor: {
       type: String,
       default: "#ffffff",

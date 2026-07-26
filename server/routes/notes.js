@@ -1,13 +1,14 @@
 const router = require("express").Router();
 const Note = require("../models/Note");
 const auth = require("../middleware/auth");
+const cloudinary = require("../config/cloudinary");
 
 // 1. create note
 router.post("/", auth, async (req, res) => {
   try {
-    const { title, content, image, bgColor, category } = req.body;
+    const { title, content, bgColor, category, images } = req.body;
     
-    const note = await Note.create({ title, content, image, bgColor, category,  user: req.user.id });
+    const note = await Note.create({ title, content, bgColor, category, images, user: req.user.id });
     res.status(201).json(note); 
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -77,7 +78,7 @@ router.patch("/:id/trash", auth, async (req, res) => {
 // 6. Delete
 router.delete("/:id", auth, async (req, res) => {
   try { 
-    const note = await Note.findByIdAndDelete(
+    const note = await Note.findOne(
       {  
         _id: req.params.id,
         user: req.user.id, 
@@ -85,6 +86,14 @@ router.delete("/:id", auth, async (req, res) => {
     );
     
     if (!note) return res.status(404).json({ message: "Note not found" });
+
+    if (note.images && note.images.length > 0) {
+      for (const image of note.images) {
+        await cloudinary.uploader.destroy(image.public_id);
+      }
+    }
+
+    await note.deleteOne();
 
     res.json({ message: "Deleted forever" });
   } catch (error) {

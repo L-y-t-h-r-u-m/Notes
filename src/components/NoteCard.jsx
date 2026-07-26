@@ -15,7 +15,8 @@ function NoteCard({ note, onDelete, onEdit, actionType = "default", onRestore, o
       </h2>
 
       <div
-        className="flex-grow overflow-y-auto prose prose-sm max-w-none mb-4 custom-scrollbar"
+        className="flex-grow overflow-y-auto prose prose-sm max-w-none mb-4 custom-scrollbar
+                    prose-img:w-[80%] prose-img:max-h-[200px] prose-img:object-contain prose-img:mx-auto prose-img:my-4"
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }}
       />
 

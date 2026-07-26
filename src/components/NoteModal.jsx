@@ -1,6 +1,7 @@
 import {useState, useRef, useEffect} from "react";
 import {Bold, Italic, Image} from "lucide-react";
 import  getTextColor  from "../utils/color";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function NoteModal({ close, onSave, initialNote }) {
   const [note, setNote] = useState(
@@ -9,6 +10,7 @@ function NoteModal({ close, onSave, initialNote }) {
       content: "",
       bgColor: "#ffffff",
       category: [],
+      images: [],
     }
   );
 
@@ -21,14 +23,30 @@ function NoteModal({ close, onSave, initialNote }) {
   }
 }, [initialNote]);
 
-  function addImage(e) {
+async function addImage(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
+    const formData = new FormData();
+    formData.append("image",file);
 
-    reader.onload = () => {
-      const imgHtml = `<img src="${reader.result}" class="w-full max-h-[200px] object-contain rounded-lg"/>`;
+    try{
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/upload`,{
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if(!response.ok){
+        throw new Error(data.message);
+      }
+
+      const imgHtml = `<img src="${data.url}"/>`;
       const updatedContent = (contentRef.current?.innerHTML || note.content) + imgHtml;
 
       if (contentRef.current) {
@@ -38,12 +56,19 @@ function NoteModal({ close, onSave, initialNote }) {
       setNote((prev) => ({
         ...prev,
         content: updatedContent,
+        images: [
+          ...prev.images,
+          {
+            url: data.url,
+            public_id: data.public_id,
+          },
+        ],
       }));
-    };
-
-    reader.readAsDataURL(file);
-    e.target.value = "";
+  } catch(error){
+    console.log("Image upload failed: ", error.message);
   }
+  e.target.value="";
+}
 
   function applyFormat(command) {
     document.execCommand(command);
@@ -137,7 +162,7 @@ function NoteModal({ close, onSave, initialNote }) {
           contentEditable
           suppressContentEditableWarning
           autoFocus={!initialNote}
-          className="note-content border flex-1 min-h-0 border-gray-400 rounded-lg p-4 overflow-y-auto "
+          className="note-content border flex-1 border-gray-400 rounded-lg p-4 overflow-y-auto "
           style={{
             color: textColor,
           }}
@@ -150,6 +175,13 @@ function NoteModal({ close, onSave, initialNote }) {
           }
         />
         <style>{`
+        .note-content img{
+          display: block;
+          width: 80%;
+          max-height: 200px;
+          object-fit: contain;
+          margin: 0.5rem auto;
+        }
           .note-content:empty:before {
             content: attr(data-placeholder);
             opacity: 0.5;
