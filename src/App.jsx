@@ -3,8 +3,19 @@ import Dashboard from "./pages/Dashboard";
 import Trash from "./pages/Trash";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import{ Routes, Route} from "react-router-dom";
+import{ Routes, Route, Outlet } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+
+function DashboardLayout(){
+  return(
+    <div className="flex bg-gray-100 h-screen overflow-hidden">
+      <Sidebar/>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Outlet/>
+      </div>
+    </div>
+  )
+}
 
 function App() {
   return (
@@ -26,13 +37,7 @@ function App() {
 
       {/*NOTES APP */}
     <Route element = {<ProtectedRoute/>}>
-      <Route path = "/dashboard/*" element = {
-    <div className="flex bg-gray-100 h-screen overflow-hidden">
-      <Sidebar/>
-
-      <div className="flex-grow flex flex-col overflow-hidden">
-
-        <Routes>
+      <Route path = "/dashboard/" element = {<DashboardLayout/>}>
           <Route 
             index element={<Dashboard />} 
           />
@@ -41,10 +46,7 @@ function App() {
             path="trash" 
             element={<Trash />} 
           />
-        </Routes>
-      </div>
-    </div>
-    } />
+          </Route>
     </Route>
     </Routes>
   );
